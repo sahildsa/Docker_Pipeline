@@ -1,0 +1,41 @@
+services:
+  app:
+    build: .
+    container_name: data_pipeline
+    networks:
+      - app_network
+
+    environment:
+      DB_HOST: db
+      DB_NAME: mydatabase
+      DB_USER: user
+      DB_PASSWORD: password
+    
+    depends_on:
+      - db
+
+
+  db:
+    image: postgres:13
+    container_name: pipeline_data_base
+    networks:
+      - app_network
+
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    
+    volumes:
+      - db_data:/var/lib/postgresql/data # Mounts the named volume 'db_data' to PostgreSQL's data directory
+    # Expose port for optional direct connection from host (e.g., using psql client)
+    ports:
+      - "5432:5432" # Host_port:Container_port
+
+networks:
+  app_network:
+    driver: bridge # The default bridge driver is suitable for local development
+
+# Define the named volume for PostgreSQL data persistence
+volumes:
+  db_data:
